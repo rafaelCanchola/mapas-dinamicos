@@ -1,0 +1,45 @@
+#map{
+    min-width: 400px;
+    min-height: 400px;
+    margin: 40px;
+    height: 500px;
+}
+#map .ol-mouse-position{
+    background-color: rgba(0,60,136,0.3);
+    color: aliceblue;
+}
+
+#map .capa-base {
+    top: 65px;
+    left: .5em;
+}
+
+#map .ol-touch .capa-base {
+    top: 80px;
+}
+
+#map .mostrar-agave {
+    top: 100px;
+    left: .5em;
+
+}
+#map .mostrar-agave button {
+    background-color: lightslategray;
+
+}
+#map .ol-touch .mostrar-agave {
+    top: 120px;
+}
+
+#map .mostrar-aguacate {
+    top: 135px;
+    left: .5em;
+
+}
+#map .mostrar-aguacate button {
+    background-color: lightslategray;
+
+}
+#map .ol-touch .mostrar-aguacate {
+    top: 155px;
+}
