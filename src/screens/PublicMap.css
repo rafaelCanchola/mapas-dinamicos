@@ -43,3 +43,16 @@
 #map .ol-touch .mostrar-aguacate {
     top: 155px;
 }
+
+#map .mostrar-manzana {
+    top: 170px;
+    left: .5em;
+
+}
+#map .mostrar-manzana button {
+    background-color: lightslategray;
+
+}
+#map .ol-touch .mostrar-manzana {
+    top: 185px;
+}

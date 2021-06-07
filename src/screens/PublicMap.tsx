@@ -23,6 +23,7 @@ interface PublicMapState{
 
 let userCreds:any;
 
+const mapExtent = [-14288915.653663361,1750678.179152118,-8505591.44725028,3862996.887827293];
 const mapLayers: BaseLayer[] = [
     new OlLayerTile({
         source: bases.b1
@@ -63,6 +64,9 @@ let isAgaveLayerOn = false;
 let isManzanaLayerOn = false;
 let isAguacateLayerOn = false;
 
+let select = new Select();
+let selectedFeatures = select.getFeatures();
+
 function actualizarLayers(sup:any){
     appliedLayers.map(layer => sup.removeLayer(layer));
     switch (counterLayers){
@@ -88,7 +92,9 @@ const CambioCapaBase = /*@__PURE__*/(function (Control) {
 
         const options = opt_options || {};
         const button = document.createElement('button');
-        button.innerHTML = 'C';
+        const icon = document.createElement('span');
+        icon.className = 'icon-earth';
+        button.appendChild(icon);
 
         const element = document.createElement('div');
         element.className = 'capa-base ol-unselectable ol-control';
@@ -142,52 +148,75 @@ const MostrarAgave = /*@__PURE__*/(function (Control) {
         button.addEventListener('click', this.handleShowAgave.bind(this), false);
     }
 
-    if ( Control ) ShowAgave.__proto__ = Control;
-    ShowAgave.prototype = Object.create( Control && Control.prototype );
-    ShowAgave.prototype.constructor = ShowAgave;
+        if ( Control ) ShowAgave.__proto__ = Control;
+        ShowAgave.prototype = Object.create( Control && Control.prototype );
+        ShowAgave.prototype.constructor = ShowAgave;
 
-    ShowAgave.prototype.handleShowAgave = function handleShowAgave () {
-        const filter = 5050000;
-        const user = userCreds.id;
-        const extent = this.getMap().getView().calculateExtent();
-        const xmin = extent[0];
-        const ymin = extent[1];
-        const xmax = extent[2];
-        const ymax = extent[3];
-        //@ts-ignore
-        const handleSubmit = async () => {
-            const agave = await downloadPolygons({
-                filter,
-                user,
-                xmin,
-                ymin,
-                xmax,
-                ymax,
-            });
+        ShowAgave.prototype.handleShowAgave = function handleShowAgave () {
+            const filter = 5050000;
+            const user = userCreds.id;
+            //const extent = this.getMap().getView().calculateExtent();
+            const xmin = mapExtent[0];
+            const ymin = mapExtent[1];
+            const xmax = mapExtent[2];
+            const ymax = mapExtent[3];
             //@ts-ignore
-            return agave.map(geo => new WKT().readFeature(geo.the_geom,{}));
-        }
-        isAgaveLayerOn = !isAgaveLayerOn;
-        if(isAgaveLayerOn){
-            handleSubmit()
-                .then(
-                    (wkt) =>{
-                        agaveLayer.getSource().addFeatures(wkt)
-                        actualizarLayers(this.getMap())
-                        // @ts-ignore
-                        document.getElementById("agave-button").style.backgroundColor = "#285C4D"
-                    }
-                ).catch(
-                ()=> isAgaveLayerOn = false
-            )
-        }else{
-            agaveLayer.getSource().clear();
-            // @ts-ignore
-            document.getElementById("agave-button").style.backgroundColor = "lightslategray";
-        }
-    };
-    return ShowAgave;
-}(Control));
+            const handleSubmit = async () => {
+                const agave = await downloadPolygons({
+                    filter,
+                    user,
+                    xmin,
+                    ymin,
+                    xmax,
+                    ymax,
+                });
+                //@ts-ignore
+                let ag = agave.map(geo => new WKT().readFeature(geo.the_geom,{}))
+                //@ts-ignore
+                ag.map((geo,index) => geo.setProperties({predio: agave[index].fol_predio}))
+                console.log(ag)
+                return ag;
+            }
+            isAgaveLayerOn = !isAgaveLayerOn;
+            if(isAgaveLayerOn){
+                const buttonAga = document.getElementById("agave-button");
+                // @ts-ignore
+                buttonAga.disabled = true;
+                // @ts-ignore
+                buttonAga.style.cursor = "wait";
+                //@ts-ignore
+                buttonAga.children.item(0).className = "icon-flickr2";
+                handleSubmit()
+                    .then(
+                        (wkt) =>{
+                            agaveLayer.getSource().addFeatures(wkt)
+                            actualizarLayers(this.getMap())
+                            // @ts-ignore
+                            document.getElementById("agave-button").style.backgroundColor = "#285C4D"
+                        }
+                    )
+                    .catch(
+                    ()=> isAgaveLayerOn = false
+                    )
+                    .finally(
+                        () => {
+                            // @ts-ignore
+                            document.getElementById("agave-button").disabled=false;
+                            // @ts-ignore
+                            document.getElementById("agave-button").style.cursor ="pointer";
+                            //@ts-ignore
+                            document.getElementById("agave-button").children.item(0).className = "icon-agave";
+                        }
+                    )
+
+            }else{
+                agaveLayer.getSource().clear();
+                // @ts-ignore
+                document.getElementById("agave-button").style.backgroundColor = "lightslategray";
+            }
+        };
+        return ShowAgave;
+    }(Control));
 
 const MostrarAguacate = /*@__PURE__*/(function (Control) {
 
@@ -214,14 +243,14 @@ const MostrarAguacate = /*@__PURE__*/(function (Control) {
     ShowAguacate.prototype = Object.create( Control && Control.prototype );
     ShowAguacate.prototype.constructor = ShowAguacate;
 
-    ShowAguacate.prototype.handleShowAguacate = function handleShowAgave () {
+    ShowAguacate.prototype.handleShowAguacate = function handleShowAguacate () {
         const filter = 5060000;
         const user = userCreds.id;
-        const extent = this.getMap().getView().calculateExtent();
-        const xmin = extent[0];
-        const ymin = extent[1];
-        const xmax = extent[2];
-        const ymax = extent[3];
+        //const extent = this.getMap().getView().calculateExtent();
+        const xmin = mapExtent[0];
+        const ymin = mapExtent[1];
+        const xmax = mapExtent[2];
+        const ymax = mapExtent[3];
         //@ts-ignore
         const handleSubmit = async () => {
             const agave = await downloadPolygons({
@@ -233,10 +262,21 @@ const MostrarAguacate = /*@__PURE__*/(function (Control) {
                 ymax,
             });
             //@ts-ignore
-            return agave.map(geo => new WKT().readFeature(geo.the_geom,{}));
+            let ag = agave.map(geo => new WKT().readFeature(geo.the_geom,{}))
+            //@ts-ignore
+            ag.map((geo,index) => geo.setProperties({predio: agave[index].fol_predio}))
+            console.log(ag)
+            return ag;
         }
         isAguacateLayerOn = !isAguacateLayerOn;
         if(isAguacateLayerOn){
+            const buttonAgu = document.getElementById("aguacate-button");
+            // @ts-ignore
+            buttonAgu.disabled = true;
+            // @ts-ignore
+            buttonAgu.style.cursor = "wait";
+            //@ts-ignore
+            buttonAgu.children.item(0).className = "icon-flickr2";
             handleSubmit()
                 .then(
                     (wkt) =>{
@@ -245,9 +285,20 @@ const MostrarAguacate = /*@__PURE__*/(function (Control) {
                         // @ts-ignore
                         document.getElementById("aguacate-button").style.backgroundColor = "#6C9B3B"
                     }
-                ).catch(
+                )
+                .catch(
                 ()=> isAguacateLayerOn = false
-            )
+                )
+                .finally(
+                    () => {
+                        // @ts-ignore
+                        document.getElementById("aguacate-button").disabled=false;
+                        // @ts-ignore
+                        document.getElementById("aguacate-button").style.cursor ="pointer";
+                        //@ts-ignore
+                        document.getElementById("aguacate-button").children.item(0).className = "icon-avocado";
+                    }
+                )
         }else{
             aguacateLayer.getSource().clear();
             // @ts-ignore
@@ -256,6 +307,99 @@ const MostrarAguacate = /*@__PURE__*/(function (Control) {
     };
     return ShowAguacate;
 }(Control));
+
+const MostrarManzana = /*@__PURE__*/(function (Control) {
+
+    function ShowManzana(opt_options:any) {
+        const options = opt_options || {};
+        const button = document.createElement('button');
+        button.id = "manzana-button";
+        const icon = document.createElement('span');
+        icon.className = 'icon-apple';
+        button.appendChild(icon);
+        const element = document.createElement('div');
+        element.className = 'mostrar-manzana ol-unselectable ol-control';
+        element.appendChild(button);
+        // @ts-ignore
+        Control.call(this, {
+            element: element,
+            target: options.target,
+        });
+        // @ts-ignore
+        button.addEventListener('click', this.handleShowManzana.bind(this), false);
+    }
+
+    if ( Control ) ShowManzana.__proto__ = Control;
+    ShowManzana.prototype = Object.create( Control && Control.prototype );
+    ShowManzana.prototype.constructor = ShowManzana;
+
+    ShowManzana.prototype.handleShowManzana = function handleShowManzana () {
+        const filter = 7580000;
+        const user = userCreds.id;
+        //const extent = this.getMap().getView().calculateExtent();
+        const xmin = mapExtent[0];
+        const ymin = mapExtent[1];
+        const xmax = mapExtent[2];
+        const ymax = mapExtent[3];
+        //@ts-ignore
+        const handleSubmit = async () => {
+            const agave = await downloadPolygons({
+                filter,
+                user,
+                xmin,
+                ymin,
+                xmax,
+                ymax,
+            });
+            //@ts-ignore
+            let ag = agave.map(geo => new WKT().readFeature(geo.the_geom,{}))
+            //@ts-ignore
+            ag.map((geo,index) => geo.setProperties({predio: agave[index].fol_predio}))
+            console.log(ag)
+            return ag;
+            }
+        isManzanaLayerOn = !isManzanaLayerOn;
+        if(isManzanaLayerOn){
+            const buttonMzn = document.getElementById("manzana-button");
+            // @ts-ignore
+            buttonMzn.disabled = true;
+            // @ts-ignore
+            buttonMzn.style.cursor = "wait";
+            //@ts-ignore
+            buttonMzn.children.item(0).className = "icon-flickr2";
+            handleSubmit()
+                .then(
+                    (wkt) =>{
+                        manzanaLayer.getSource().addFeatures(wkt)
+                        actualizarLayers(this.getMap())
+                        // @ts-ignore
+                        document.getElementById("manzana-button").style.backgroundColor = "#d3353b";
+                    }
+                )
+                .catch(
+                ()=> isManzanaLayerOn = false
+                )
+                .finally(
+                () => {
+                    // @ts-ignore
+                    document.getElementById("manzana-button").disabled=false;
+                    // @ts-ignore
+                    document.getElementById("manzana-button").style.cursor ="pointer";
+                    //@ts-ignore
+                    document.getElementById("manzana-button").children.item(0).className = "icon-apple";
+                }
+                )
+        }else{
+            manzanaLayer.getSource().clear();
+            // @ts-ignore
+            document.getElementById("manzana-button").style.backgroundColor = "lightslategray";
+        }
+    };
+    return ShowManzana;
+}(Control));
+
+
+
 
 async function downloadPolygons(cultivo:any) {
     const local = 'http://localhost:8080/api/poligonos';
@@ -290,12 +434,15 @@ export default class PublicMap extends Component<any, PublicMapState> {
 
             }),
             //@ts-ignore
-            controls:defaultControls().extend([new CambioCapaBase(), new MostrarAgave(), new MostrarAguacate(), new ScaleLine(), new MousePosition()]),
+            controls:defaultControls().extend([new CambioCapaBase(), new MostrarAgave(), new MostrarAguacate(), new MostrarManzana(), new ScaleLine(), new MousePosition()]),
+
         });
+        this.olmap.addInteraction(select)
         appliedLayers = [mapLayers[1]];
         this.olmap.addLayer(appliedLayers[0]);
         //actualizarLayers(this.olmap.getMap());
     }
+
 
 
     updateMap() {
@@ -313,6 +460,10 @@ export default class PublicMap extends Component<any, PublicMapState> {
             let zoom = this.olmap.getView().getZoom();
             this.setState({ center, zoom });
         });
+        selectedFeatures.on('add',function (){
+            console.log(selectedFeatures.item(0).getProperties());
+        });
+
     }
 
     shouldComponentUpdate(nextProps:any, nextState:any) {

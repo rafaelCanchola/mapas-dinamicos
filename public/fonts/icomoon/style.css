@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?df3e71');
-  src:  url('fonts/icomoon.eot?df3e71#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?df3e71') format('truetype'),
-    url('fonts/icomoon.woff?df3e71') format('woff'),
-    url('fonts/icomoon.svg?df3e71#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?i9am7j');
+  src:  url('fonts/icomoon.eot?i9am7j#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?i9am7j') format('truetype'),
+    url('fonts/icomoon.woff?i9am7j') format('woff'),
+    url('fonts/icomoon.svg?i9am7j#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -33,4 +33,10 @@
 }
 .icon-agave:before {
   content: "\e902";
+}
+.icon-earth:before {
+  content: "\e9ca";
+}
+.icon-flickr2:before {
+  content: "\eaa4";
 }
