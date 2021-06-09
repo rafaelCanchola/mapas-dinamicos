@@ -15,6 +15,7 @@ import 'ol/ol.css'
 import BaseLayer from "ol/layer/Base";
 import VectorSource from "ol/source/Vector";
 import {Fill, Stroke} from "ol/style";
+import {Select} from "ol/interaction";
 
 interface PublicMapState{
     center:any,
@@ -173,8 +174,8 @@ const MostrarAgave = /*@__PURE__*/(function (Control) {
                 //@ts-ignore
                 let ag = agave.map(geo => new WKT().readFeature(geo.the_geom,{}))
                 //@ts-ignore
-                ag.map((geo,index) => geo.setProperties({predio: agave[index].fol_predio}))
-                console.log(ag)
+                ag.map((geo,index) => geo.setProperties({id: agave[index].id}))
+                //console.log(ag)
                 return ag;
             }
             isAgaveLayerOn = !isAgaveLayerOn;
@@ -264,8 +265,8 @@ const MostrarAguacate = /*@__PURE__*/(function (Control) {
             //@ts-ignore
             let ag = agave.map(geo => new WKT().readFeature(geo.the_geom,{}))
             //@ts-ignore
-            ag.map((geo,index) => geo.setProperties({predio: agave[index].fol_predio}))
-            console.log(ag)
+            ag.map((geo,index) => geo.setProperties({id: agave[index].id}))
+            //console.log(ag)
             return ag;
         }
         isAguacateLayerOn = !isAguacateLayerOn;
@@ -354,8 +355,8 @@ const MostrarManzana = /*@__PURE__*/(function (Control) {
             //@ts-ignore
             let ag = agave.map(geo => new WKT().readFeature(geo.the_geom,{}))
             //@ts-ignore
-            ag.map((geo,index) => geo.setProperties({predio: agave[index].fol_predio}))
-            console.log(ag)
+            ag.map((geo,index) => geo.setProperties({id: agave[index].id}))
+            //console.log(ag)
             return ag;
             }
         isManzanaLayerOn = !isManzanaLayerOn;
@@ -460,17 +461,22 @@ export default class PublicMap extends Component<any, PublicMapState> {
             let zoom = this.olmap.getView().getZoom();
             this.setState({ center, zoom });
         });
-        selectedFeatures.on('add',function (){
-            console.log(selectedFeatures.item(0).getProperties());
+        selectedFeatures.on('add', () =>{
+            //console.log(selectedFeatures.item(0).getProperties());
+            this.props.cultivoCallback(selectedFeatures.item(0).getProperties().id)
         });
+        selectedFeatures.on('remove',() =>{
+            this.props.cultivoCallback(undefined);
+        })
 
     }
+
 
     shouldComponentUpdate(nextProps:any, nextState:any) {
         let center = this.olmap.getView().getCenter();
         let zoom = this.olmap.getView().getZoom();
 
-        console.log(" center: "+this.state.center + ":"+ this.state.zoom);
+        //console.log(" center: "+this.state.center + ":"+ this.state.zoom);
         return !(center === nextState.center && zoom === nextState.zoom);
     }
 

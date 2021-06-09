@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import logo1 from './images/logo1.png';
 import './App.css';
 import "tailwindcss/dist/base.css";
@@ -11,6 +11,7 @@ import AnimationRevealPage from "./components/helpers/AnimationRevealPage";
 import Header, {LogoLink, NavLink, NavLinks, PrimaryLink} from "./components/headers/light.js";
 import tw from "twin.macro";
 import {Container as ContainerBase} from "./components/misc/Layouts";
+import TableCultivo from "./screens/TableCultivo";
 
 const Container = tw.div`relative`;
 const Content = tw.div`bg-siap-100 flex items-center xl:flex-row lg:rounded-lg`;
@@ -18,8 +19,30 @@ const MapContent = tw.div`lg:w-9/12 sm:my-6 bg-white  sm:mx-6  text-gray-900 sha
 const InfoContent = tw.div`lg:w-3/12 sm:my-6 bg-white  sm:mx-6  text-gray-900 shadow sm:rounded-lg`;
 const Paragraph = tw.p`my-12 lg:my-12 text-center text-base xl:text-lg`;
 
+const HighlightedText = tw.span`text-primary-500`;
+const Subheading = tw.span`uppercase tracking-widest font-bold text-primary-500`;
+
+const heading = [
+    {
+        header: 'first row',
+        columns: ['first column', 'second column'],
+    },
+    {
+        header: 'second row',
+        columns: ['first column', 'second column'],
+    },
+    {
+        header: 'third row',
+        columns: ['first column', 'second column'],
+    },
+]
+
 function App() {
     const { token, setToken, deleteToken } = UseToken();
+    const [cultivo,setCultivo] = useState();
+    const handleCallback = (childData:any) =>{
+        setCultivo(childData);
+    }
     const defaultLinks = [
         <NavLinks>
             <NavLink href="/#">Ver Mapa</NavLink>
@@ -41,10 +64,10 @@ function App() {
             <Header roundedHeaderButton={true} links={defaultLinks} logoLink={logoLink} className={""}></Header>
             <Container>
                 <Content>
-                    <MapContent><PublicMap user={token}/></MapContent>
+                    <MapContent><PublicMap user={token} cultivoCallback={handleCallback}/></MapContent>
                     <InfoContent>
                         <Paragraph>
-                        Selecciona un predio para ver su información.
+                            {cultivo === undefined ? <>Selecciona un predio para ver su información.</>:<>Información detallada<TableCultivo id={cultivo}/></>}
                     </Paragraph>
                     </InfoContent>
                 </Content>
