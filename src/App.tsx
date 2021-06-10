@@ -12,10 +12,12 @@ import Header, {LogoLink, NavLink, NavLinks, PrimaryLink} from "./components/hea
 import tw from "twin.macro";
 import {Container as ContainerBase} from "./components/misc/Layouts";
 import TableCultivo from "./screens/TableCultivo";
+import AnalyticMap from "./screens/AnalyticMap";
 
 const Container = tw.div`relative`;
 const Content = tw.div`bg-siap-100 flex items-center xl:flex-row lg:rounded-lg`;
 const MapContent = tw.div`lg:w-9/12 sm:my-6 bg-white  sm:mx-6  text-gray-900 shadow sm:rounded-lg`;
+const Map2Content = tw.div`lg:w-9/12 sm:my-6 bg-white  sm:mx-6  text-gray-900 shadow sm:rounded-lg`;
 const InfoContent = tw.div`lg:w-3/12 sm:my-6 bg-white  sm:mx-6  text-gray-900 shadow sm:rounded-lg`;
 const Paragraph = tw.p`my-12 lg:my-12 text-center text-base xl:text-lg`;
 
@@ -45,8 +47,8 @@ function App() {
     }
     const defaultLinks = [
         <NavLinks>
-            <NavLink href="/#">Ver Mapa</NavLink>
-            <NavLink href="/#">Estadistica</NavLink>
+            <NavLink href="/#mapa">Ver Mapa</NavLink>
+            <NavLink href="/#estadistica">Estadistica</NavLink>
             <NavLink href="/#">Subir Archivo</NavLink>
             <NavLink href="/#">Agregar Ejercicio</NavLink>
             <PrimaryLink href="" onClick={() => {setToken(null);deleteToken()}}>Cerrar Sesión</PrimaryLink>
@@ -62,16 +64,32 @@ function App() {
     <div className="App">
         <AnimationRevealPage>
             <Header roundedHeaderButton={true} links={defaultLinks} logoLink={logoLink} className={""}></Header>
-            <Container>
-                <Content>
-                    <MapContent><PublicMap user={token} cultivoCallback={handleCallback}/></MapContent>
-                    <InfoContent>
-                        <Paragraph>
-                            {cultivo === undefined ? <>Selecciona un predio para ver su información.</>:<>Información detallada<TableCultivo id={cultivo}/></>}
-                    </Paragraph>
-                    </InfoContent>
-                </Content>
-            </Container>
+            <div id={"mapa"}>
+                <Container>
+                    <Content>
+                        <MapContent><PublicMap user={token} cultivoCallback={handleCallback}/></MapContent>
+                        <InfoContent>
+                            <Paragraph>
+                                {cultivo === undefined ? <>Selecciona un predio para ver su información.</>:<>Información detallada<TableCultivo id={cultivo}/></>}
+                            </Paragraph>
+                        </InfoContent>
+                    </Content>
+                </Container>
+            </div>
+            <div id={"estadistica"}>
+                <Container>
+                    <Content>
+                        <InfoContent>
+                            <Paragraph>
+                               Selecciona un estado para ver su información.
+                            </Paragraph>
+                        </InfoContent>
+                        <Map2Content><AnalyticMap/></Map2Content>
+
+                    </Content>
+                </Container>
+            </div>
+
         </AnimationRevealPage>
     </div>
   );
